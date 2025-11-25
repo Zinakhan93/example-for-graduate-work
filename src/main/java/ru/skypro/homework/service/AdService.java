@@ -15,6 +15,6 @@ public interface AdService {
     ExtendedAd getAd(Integer id); // Получить объявление по ID
     void removeAd(Integer id); // Удалить объявление
     Ad updateAd(Integer id, CreateOrUpdateAd updateAd); // Обновить объявление
-    Ads getAdsMe(String username); // Получить объявления текущего пользователя
+    Ads getAdsMe(String username); // Получить объявления текущего пользователя    ТУТ У МЕНЯ ВОЗНИКЛИ ВОПРОСИКИ
     byte[] updateAdImage(Integer id, MultipartFile image) throws IOException; // Обновить изображение объявления
 }

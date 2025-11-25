@@ -1,4 +1,4 @@
-package ru.skypro.homework.service;
+package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -12,12 +12,13 @@ import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.UserService;
 
 import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService  {
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;  // Репозиторий для работы с пользователями
     private final UserMapper userMapper;          // Маппер для преобразования
     private final PasswordEncoder passwordEncoder; // Кодировщик паролей

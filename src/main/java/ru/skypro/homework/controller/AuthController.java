@@ -23,7 +23,7 @@ public class AuthController {
     private final AuthService authService;// Внедряем сервис аутентификации
 
     @PostMapping("/login")// Обработка POST запросов на /login
-    @Operation(tags = {"Авторизация"})
+    @Operation(tags = {"Авторизация"},summary = "Регистрация пользователя")
     public ResponseEntity<?> login(@RequestBody Login login) {
         // @RequestBody - данные приходят в теле запроса в формате JSON
         if (authService.login(login.getUsername(), login.getPassword())) {
@@ -35,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    @Operation(tags = {"Регистрация"})
+    @Operation(tags = {"Регистрация"}, summary = "Авторизация пользователя")
     public ResponseEntity<?> register(@RequestBody Register register) {
         if (authService.register(register)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();

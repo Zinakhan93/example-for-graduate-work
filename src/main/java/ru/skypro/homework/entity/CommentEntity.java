@@ -1,6 +1,7 @@
 package ru.skypro.homework.entity;
 
-import lombok.Data;
+import lombok.*;
+
 import javax.persistence.Id;
 
 import javax.persistence.*;
@@ -8,6 +9,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Getter
+@Setter
+@AllArgsConstructor // создает конструктор
+@NoArgsConstructor // создает пустой конструктор
 @Table(name = "comments")
 public class CommentEntity {
     private Long id;

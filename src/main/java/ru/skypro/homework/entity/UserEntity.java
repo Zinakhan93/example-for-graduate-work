@@ -11,6 +11,10 @@ import java.util.List;
 
 @Entity
 @Data
+@Getter
+@Setter
+@AllArgsConstructor // создает конструктор
+@NoArgsConstructor // создает пустой конструктор
 @Table(name = "users")
 public class UserEntity {
     @Id

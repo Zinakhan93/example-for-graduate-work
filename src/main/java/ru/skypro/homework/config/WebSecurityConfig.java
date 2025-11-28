@@ -22,7 +22,9 @@ public class WebSecurityConfig {
             "/v3/api-docs",
             "/webjars/**",
             "/login",
-            "/register"
+            "/register",
+            "/ads",           // Добавили для публичного доступа к объявлениям
+            "/ads/**"         // Добавили для публичного доступа к конкретным объявлениям
     };
 
     @Bean

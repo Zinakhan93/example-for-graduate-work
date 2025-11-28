@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.build.Plugin;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -39,18 +40,19 @@ public class AdsController {
     }
 
 
-    @PostMapping(consumes = "multipart/form-data")// Обработка POST запросов с multipart данными
+    //@PostMapping( consumes = MediaType.MULTIPART_FORM_DATA_VALUE)// Обработка POST запросов с multipart данными
     @Operation (summary= "Добавления объявления")
-    public ResponseEntity<Ad> addAd(@RequestPart("properties") CreateOrUpdateAd properties,
-                                    @RequestPart("image") MultipartFile image,
+    @PostMapping //(consumes =MediaType.MULTIPART_FORM_DATA_VALUE) // Обработка POST запросов с multipart данными
+    public ResponseEntity<Ad> addAd(@RequestBody  CreateOrUpdateAd properties,
+                                    //@RequestPart("image") MultipartFile image,
                                     Authentication authentication) throws IOException {
         // Authentication содержит информацию о текущем аутентифицированном пользователе
         String username = authentication.getName(); // Получаем email пользователя
 
         // Вызываем сервис для создания объявления
-        Ad ad = adService.addAd(properties, image, username);
+        //Ad ad = adService.addAd(properties, image, username);
         // Возвращаем ответ со статусом 201 Created и созданным объявлением
-        return ResponseEntity.status(201).body(ad);
+        return ResponseEntity.status(201).body(new Ad());
     }
 
 

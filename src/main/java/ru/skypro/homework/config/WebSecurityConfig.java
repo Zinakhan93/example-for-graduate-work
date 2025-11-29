@@ -23,18 +23,19 @@ public class WebSecurityConfig {
             "/webjars/**",
             "/login",
             "/register",
-            "/ads",           // Добавили для публичного доступа к объявлениям
-            "/ads/**"         // Добавили для публичного доступа к конкретным объявлениям
+//            "/ads", добавили для публичного доступа к объявлениям
+//            "/ads/**" Добавили для публичного доступа к конкретным объявлениям
     };
 
     @Bean
     public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
+        // Создаем тестового пользователя в памяти приложения
         UserDetails user =
                 User.builder()
                         .username("user@gmail.com")
                         .password("password")
-                        .passwordEncoder(passwordEncoder::encode)
-                        .roles(Role.USER.name())
+                        .passwordEncoder(passwordEncoder::encode)// Кодируем пароль
+                        .roles(Role.USER.name())// Назначаем роль
                         .build();
         return new InMemoryUserDetailsManager(user);
     }
@@ -46,9 +47,9 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(
                         authorization ->
                                 authorization
-                                        .mvcMatchers(AUTH_WHITELIST)
+                                        .mvcMatchers(AUTH_WHITELIST)// Разрешаем доступ без аутентификации
                                         .permitAll()
-                                        .mvcMatchers("/ads/**", "/users/**")
+                                        .mvcMatchers("/ads/**", "/users/**")// Требуем аутентификацию
                                         .authenticated())
                 .cors()
                 .and()

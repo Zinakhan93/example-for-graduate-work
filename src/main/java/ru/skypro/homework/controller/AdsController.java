@@ -40,8 +40,9 @@ public class AdsController {
     }
 
 
-    //@PostMapping( consumes = MediaType.MULTIPART_FORM_DATA_VALUE)// Обработка POST запросов с multipart данными
+    @PostMapping( consumes = MediaType.MULTIPART_FORM_DATA_VALUE)// Обработка POST запросов с multipart данными
     @Operation (summary= "Добавления объявления")
+    // @PostMapping(consumes = "multipart/form-data") // Обработка POST запросов с multipart данными
     public ResponseEntity<Ad> addAd(@RequestPart("properties") CreateOrUpdateAd properties,
                                     @RequestPart("image") MultipartFile image,
                                     Authentication authentication) throws IOException {
@@ -53,6 +54,7 @@ public class AdsController {
         // Возвращаем ответ со статусом 201 Created и созданным объявлением
         return ResponseEntity.status(201).body(ad);
     }
+
 
 
     @GetMapping("/{id}") // {id} - path variable (переменная пути)

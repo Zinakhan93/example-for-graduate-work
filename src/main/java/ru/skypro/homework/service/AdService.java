@@ -11,7 +11,7 @@ import java.io.IOException;
 public interface AdService {
     // Объявление методов для работы с объявлениями
     Ads getAllAds(); // Получить все объявления
-    Ad addAd(CreateOrUpdateAd properties, MultipartFile image, String username) throws IOException; // Добавить объявление
+    Ad addAd(CreateOrUpdateAd properties, MultipartFile image,String username) throws IOException; ; // Добавить объявление
     ExtendedAd getAd(Integer id); // Получить объявление по ID
     void removeAd(Integer id); // Удалить объявление
     Ad updateAd(Integer id, CreateOrUpdateAd updateAd); // Обновить объявление

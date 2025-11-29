@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor // создает пустой конструктор
 @Table(name = "comments")
 public class CommentEntity {
-    private Long id;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer pk;
@@ -26,12 +25,12 @@ public class CommentEntity {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Комментарий принадлежит одному пользователю
+    // Связь с пользователем (много комментариев - один пользователь)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     private UserEntity author;
 
-    // Комментарий принадлежит одному объявлению
+    // Связь с объявлением (много комментариев - одно объявление)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ad_id", nullable = false)
     private AdEntity ad;

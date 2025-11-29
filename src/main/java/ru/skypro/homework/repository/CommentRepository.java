@@ -10,15 +10,15 @@ import java.util.Optional;
 @Repository
 public interface CommentRepository extends JpaRepository<CommentEntity, Integer> {
 
-    // Все комментарии для определенного объявления
+    // Поиск всех комментариев объявления
     // SELECT * FROM comments WHERE ad_id = ?
     List<CommentEntity> findByAdPk(Integer adId);
 
-    // Поиск конкретного комментария в конкретном объявлении
+    //Поиск комментария по ID объявления и ID комментария
     // SELECT * FROM comments WHERE ad_id = ? AND pk = ?
     Optional<CommentEntity> findByAdPkAndPk(Integer adId, Integer commentId);
 
-    // Удаление комментария по ID объявления и комментария
+      // Удаление комментария по ID объявления и ID комментария
     // DELETE FROM comments WHERE ad_id = ? AND pk = ?
     void deleteByAdPkAndPk(Integer adId, Integer commentId);
 }

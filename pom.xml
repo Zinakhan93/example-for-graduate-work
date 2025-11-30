@@ -72,6 +72,11 @@
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
       </dependency>
+      <!--  Добавила зависимость liquibase -->
+      <dependency>
+          <groupId>org.liquibase</groupId>
+          <artifactId>liquibase-core</artifactId>
+      </dependency>
   </dependencies>
 
   <build>
@@ -88,7 +93,19 @@
           </excludes>
         </configuration>
       </plugin>
+        <!--  ЭТОТ PLUGIN ДЛЯ JAVADOC -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.4.1</version>
+            <configuration>
+                <source>11</source>
+                <show>private</show>
+                <nohelp>true</nohelp>
+            </configuration>
+        </plugin>
     </plugins>
+
   </build>
 
 </project>

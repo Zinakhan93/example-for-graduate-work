@@ -2,18 +2,25 @@ package ru.skypro.homework.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import ru.skypro.homework.dto.Role;
+
+import javax.sql.DataSource;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
+// Включаем поддержку аннотаций для проверки прав доступа на уровне методов
+ @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
@@ -27,17 +34,22 @@ public class WebSecurityConfig {
 //            "/ads/**" Добавили для публичного доступа к конкретным объявлениям
     };
 
+    // Заменяем InMemoryUserDetailsManager на JdbcUserDetailsManager для хранения пользователей в БД
     @Bean
-    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder passwordEncoder) {
-        // Создаем тестового пользователя в памяти приложения
-        UserDetails user =
-                User.builder()
-                        .username("user@gmail.com")
-                        .password("password")
-                        .passwordEncoder(passwordEncoder::encode)// Кодируем пароль
-                        .roles(Role.USER.name())// Назначаем роль
-                        .build();
-        return new InMemoryUserDetailsManager(user);
+    public UserDetailsManager userDetailsService(DataSource dataSource) {
+        // Создаем JdbcUserDetailsManager, который будет работать с нашей БД PostgreSQL
+        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
+
+        // Настраиваем SQL запросы для работы с пользователями
+        // Запрос для поиска пользователя по имени (email)
+        userDetailsManager.setUsersByUsernameQuery(
+                "SELECT email, password, enabled FROM users WHERE email = ?");
+
+        // Запрос для получения ролей пользователя
+        userDetailsManager.setAuthoritiesByUsernameQuery(
+                "SELECT email, role FROM users WHERE email = ?");
+
+        return userDetailsManager;
     }
 
     @Bean
@@ -59,6 +71,7 @@ public class WebSecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
+        // Используем BCrypt для безопасного хранения паролей
         return new BCryptPasswordEncoder();
     }
 

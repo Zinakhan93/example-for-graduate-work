@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.Comment;
 import ru.skypro.homework.dto.Comments;
@@ -65,7 +66,8 @@ public class CommentServiceImpl  implements CommentService {
         // Преобразуем сохраненное Entity обратно в DTO для ответа
         return commentMapper.toDto(savedComment);
     }
-//  Метод добавления комментария надо доработать, написан неправильно. Так как входной параметр поиска не входит название. В итоге в самом методе он ищет из репозитория Email. Написано не по инструкции
+    // Проверяем, что пользователь является автором комментария или администратором
+    @PreAuthorize("hasRole('ADMIN') or @commentServiceImpl.isCommentAuthor(authentication.name, #adId, #commentId)")
     @Override
     public void deleteComment(Integer adId, Integer commentId) {
         // Проверяем существование комментария
@@ -76,6 +78,8 @@ public class CommentServiceImpl  implements CommentService {
         commentRepository.delete(comment);
     }
 
+    // Проверяем, что пользователь является автором комментария или администратором
+    @PreAuthorize("hasRole('ADMIN') or @commentServiceImpl.isCommentAuthor(authentication.name, #adId, #commentId)")
     @Override
     public Comment updateComment(Integer adId, Integer commentId, CreateOrUpdateComment comment) {
         // Находим комментарий по ID объявления и ID комментария
@@ -90,6 +94,21 @@ public class CommentServiceImpl  implements CommentService {
 
         // Преобразуем в DTO и возвращаем
         return commentMapper.toDto(updatedComment);
+    }
+
+    // Вспомогательный метод для проверки авторства комментария
+    // Используется в аннотации @PreAuthorize
+    public boolean isCommentAuthor(String username, Integer adId, Integer commentId) {
+        // Находим пользователя по email
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        // Находим комментарий по ID объявления и ID комментария
+        CommentEntity comment = commentRepository.findByAdPkAndPk(adId, commentId)
+                .orElseThrow(() -> new RuntimeException("Комментарий не найден"));
+
+        // Проверяем, что автор комментария совпадает с текущим пользователем
+        return comment.getAuthor().getId().equals(user.getId());
     }
 
 

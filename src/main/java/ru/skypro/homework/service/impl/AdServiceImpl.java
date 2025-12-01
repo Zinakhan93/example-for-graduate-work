@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.Ad;
@@ -75,9 +76,8 @@ public class AdServiceImpl implements AdService {
         return adMapper.toExtendedDto(adEntity);
     }
 
-
-
-
+    // Проверяем, что пользователь является автором объявления или администратором
+    @PreAuthorize("hasRole('ADMIN') or @adServiceImpl.isAdAuthor(authentication.name, #id)")
     @Override
     // метод чтобы объявление по ID
     public void removeAd(Integer id) {
@@ -89,6 +89,8 @@ public class AdServiceImpl implements AdService {
         adRepository.deleteById(id);
     }
 
+    // Проверяем, что пользователь является автором объявления или администратором
+    @PreAuthorize("hasRole('ADMIN') or @adServiceImpl.isAdAuthor(authentication.name, #id)")
     @Override
     // метод для обновления объявления
     public Ad updateAd(Integer id, CreateOrUpdateAd updateAd) {
@@ -126,6 +128,8 @@ public class AdServiceImpl implements AdService {
         return ads;
     }
 
+    // Проверяем, что пользователь является автором объявления или администратором
+    @PreAuthorize("hasRole('ADMIN') or @adServiceImpl.isAdAuthor(authentication.name, #id)")
     @Override
     //Обновить изображение объявления
     public byte[] updateAdImage(Integer id, MultipartFile image) throws IOException {
@@ -140,6 +144,22 @@ public class AdServiceImpl implements AdService {
 
         // Возвращаем массив байтов изображения (в реальном приложении нужно читать файл)
         return image.getBytes();
+    }
+
+
+    // Вспомогательный метод для проверки авторства объявления
+    // Используется в аннотации @PreAuthorize
+    public boolean isAdAuthor(String username, Integer adId) {
+        // Находим пользователя по email
+        UserEntity user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+
+        // Находим объявление по ID
+        AdEntity ad = adRepository.findById(adId)
+                .orElseThrow(() -> new RuntimeException("Объявление не найдено"));
+
+        // Проверяем, что автор объявления совпадает с текущим пользователем
+        return ad.getAuthor().getId().equals(user.getId());
     }
 
 }

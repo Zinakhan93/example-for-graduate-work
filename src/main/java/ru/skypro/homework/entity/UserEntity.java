@@ -3,10 +3,16 @@ package ru.skypro.homework.entity;
 
 import lombok.*;
 import javax.persistence.Id;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import ru.skypro.homework.dto.Role;
 
 
 import javax.persistence.*;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Entity
@@ -16,7 +22,8 @@ import java.util.List;
 @AllArgsConstructor // создает конструктор
 @NoArgsConstructor // создает пустой конструктор
 @Table(name = "users")
-public class UserEntity {
+// Реализуем UserDetails для интеграции с Spring Security
+public class UserEntity  implements UserDetails {
     @Id
     // Стратегия генерации ID: IDENTITY - база данных сама генерирует уникальные ID
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +34,7 @@ public class UserEntity {
     // unique = true - уникальное значение
     // length = 32 - максимальная длина строки
     @Column(nullable = false, unique = true, length = 32)
-    private String email;
+    private String email; // Это будет username в Spring Security
 
     // Пароль будет храниться в закодированном виде
     @Column(nullable = false, length = 64)
@@ -54,6 +61,11 @@ public class UserEntity {
     @Column(name = "image_url")
     private String imageUrl;
 
+    // Поле для Spring Security - активирован ли пользователь
+    @Column(nullable = false)
+    private boolean enabled = true;
+
+
     // Связь "один ко многим": один пользователь - много объявлений
     // mappedBy = "author" - поле в классе AdEntity, которое владеет связью
     // cascade = CascadeType.ALL - операции сохраняются каскадно
@@ -67,4 +79,42 @@ public class UserEntity {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @ToString.Exclude
     private List<CommentEntity> comments;
+
+    // Методы из интерфейса UserDetails
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Преобразуем нашу роль в формат Spring Security
+        // ROLE_USER или ROLE_ADMIN
+        return Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public String getUsername() {
+        // Для Spring Security username - это email
+        return email;
+    }
+    @Override
+    public boolean isAccountNonExpired() {
+        // Аккаунт не просрочен
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        // Аккаунт не заблокирован
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        // Пароль не просрочен
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // Аккаунт активирован
+        return enabled;
+    }
 }

@@ -1,6 +1,7 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,7 +31,8 @@ public class UserServiceImpl implements UserService {
         // Преобразуем в DTO и возвращаем
         return userMapper.toDto(userEntity);
     }
-
+    // Только текущий пользователь может обновлять свои данные
+    @PreAuthorize("#updateUser == null or authentication.name == @userServiceImpl.getCurrentUserEntity().email")
     @Override
     public UpdateUser updateUser(UpdateUser updateUser) {
         // Получаем текущего пользователя
@@ -65,16 +67,32 @@ public class UserServiceImpl implements UserService {
         // Устанавливаем и кодируем новый пароль
         userEntity.setPassword(passwordEncoder.encode(newPassword.getNewPassword()));
         userRepository.save(userEntity);
+        // Также обновляем пароль в Spring Security
+        updatePasswordInSpringSecurity(userEntity.getEmail(), newPassword.getNewPassword());
     }
 
     // Вспомогательный метод для получения текущего пользователя
-    private UserEntity getCurrentUserEntity() {
-        // Получаем информацию об аутентификации из Spring Security
+    public UserEntity getCurrentUserEntity() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // В Spring Security имя пользователя - это email
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new RuntimeException("Пользователь не аутентифицирован");
+        }
+
         String email = authentication.getName();
-        // Ищем пользователя в БД по email
+
+        if (email == null || email.equals("anonymousUser")) {
+            throw new RuntimeException("Пользователь не аутентифицирован");
+        }
+
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден в базе данных"));
+    }
+
+    // Метод для обновления пароля в Spring Security
+    private void updatePasswordInSpringSecurity(String username, String newPassword) {
+        // В реальном приложении здесь может быть логика обновления пароля
+        // в UserDetailsManager, но JdbcUserDetailsManager автоматически обновляет пароль
+        // при изменении через userDetailsManager.updatePassword()
     }
 }

@@ -59,11 +59,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(
                         authorization ->
                                 authorization
-                                        .mvcMatchers(AUTH_WHITELIST)// Разрешаем доступ без аутентификации
-                                        .permitAll()
+                                        .mvcMatchers(AUTH_WHITELIST)// URL из белого списка Разрешаем доступ без аутентификации
+                                        .permitAll() // Разрешаем доступ без аутентификации
                                         .mvcMatchers("/ads/**", "/users/**")// Требуем аутентификацию
-                                        .authenticated())
-                .cors()
+                                        .authenticated())// Требуют аутентификации
+                .cors()// Включаем CORS для кросс-доменных запросов
                 .and()
                 .httpBasic(withDefaults());
         return http.build();

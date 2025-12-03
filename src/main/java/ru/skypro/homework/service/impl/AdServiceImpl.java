@@ -1,6 +1,9 @@
 package ru.skypro.homework.service.impl;
 
+import liquibase.pro.packaged.S;
+import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,12 +18,20 @@ import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
 
+
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.datical.liquibase.ext.init.InitProjectUtil.getExtension;
+
 @Service // Помечаем класс как Spring Service компонент
-@RequiredArgsConstructor // Lombok: создает конструктор для всех final полей
+@RequiredArgsConstructor// Lombok: создает конструктор для всех final полей
+@Slf4j
 public class AdServiceImpl implements AdService {
 
     private final AdRepository adRepository; // Репозиторий для работы с объявлениями в БД

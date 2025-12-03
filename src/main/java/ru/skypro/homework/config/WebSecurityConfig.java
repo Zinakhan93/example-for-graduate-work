@@ -55,17 +55,17 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf()
-                .disable()
+                .disable() // Отключаем CSRF защиту, так как используем REST API
                 .authorizeHttpRequests(
                         authorization ->
                                 authorization
-                                        .mvcMatchers(AUTH_WHITELIST)// URL из белого списка Разрешаем доступ без аутентификации
+                                        .mvcMatchers(AUTH_WHITELIST) // URL из белого списка
                                         .permitAll() // Разрешаем доступ без аутентификации
-                                        .mvcMatchers("/ads/**", "/users/**")// Требуем аутентификацию
-                                        .authenticated())// Требуют аутентификации
-                .cors()// Включаем CORS для кросс-доменных запросов
+                                        .mvcMatchers("/ads/**", "/users/**") // Все остальные URL
+                                        .authenticated()) // Требуют аутентификации
+                .cors() // Включаем CORS для кросс-доменных запросов
                 .and()
-                .httpBasic(withDefaults());
+                .httpBasic(withDefaults()); // Используем Basic аутентификацию
         return http.build();
     }
 

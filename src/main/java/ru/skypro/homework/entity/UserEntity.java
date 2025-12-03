@@ -62,7 +62,7 @@ public class UserEntity  implements UserDetails {
     private String imageUrl;
 
     // Поле для Spring Security - активирован ли пользователь
-    @Column(nullable = false)
+    @Column(nullable = true)
     private boolean enabled = true;
 
 
@@ -71,7 +71,7 @@ public class UserEntity  implements UserDetails {
     // cascade = CascadeType.ALL - операции сохраняются каскадно
     // fetch = FetchType.LAZY - данные загружаются только при обращении
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // Исключаем из toString чтобы избежать бесконечной рекурсии
+    // Исключаем из toString, чтобы избежать бесконечной рекурсии
     @ToString.Exclude
     private List<AdEntity> ads;
 

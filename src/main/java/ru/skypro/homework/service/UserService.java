@@ -12,4 +12,5 @@ public interface UserService {
     UpdateUser updateUser(UpdateUser updateUser);
     void updateUserImage(MultipartFile image) throws IOException;
     void setPassword(NewPassword newPassword);
+
 }

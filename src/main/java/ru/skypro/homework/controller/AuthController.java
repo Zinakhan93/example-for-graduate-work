@@ -22,25 +22,30 @@ public class AuthController {
 
     private final AuthService authService;// Внедряем сервис аутентификации
 
-    @PostMapping("/login")// Обработка POST запросов на /login
-    @Operation(tags = {"Авторизация"},summary = "Регистрация пользователя")
-    public ResponseEntity<?> login(@RequestBody Login login) {
-        // @RequestBody - данные приходят в теле запроса в формате JSON
-        if (authService.login(login.getUsername(), login.getPassword())) {
-            return ResponseEntity.ok().build();// 200 OK если успешно
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();// 401 если ошибка
+    @PostMapping("/login")
+    @Operation(tags = {"Авторизация "}, summary = "авторизация  пользователя")
+    public ResponseEntity<Void> login(@RequestBody Login login) {
+        log.info("Login attempt for user: {}", login.getUsername());
 
+        if (authService.login(login.getUsername(), login.getPassword())) {
+            log.info("User {} logged in successfully", login.getUsername());
+            return ResponseEntity.ok().build();
+        } else {
+            log.warn("Failed login attempt for user: {}", login.getUsername());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
+
     @PostMapping("/register")
-    @Operation(tags = {"Регистрация"}, summary = "Авторизация пользователя")
-    public ResponseEntity<?> register(@RequestBody Register register) {
+    @Operation(tags = {"Регистрация"}, summary = "Регистрация пользователя")
+    public ResponseEntity<String> register(@RequestBody Register register) {
         if (authService.register(register)) {
-            return ResponseEntity.status(HttpStatus.CREATED).build();
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("User registered successfully");
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("User already exists");
         }
     }
 }

@@ -1,11 +1,12 @@
 package ru.skypro.homework.mapper;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.dto.UpdateUser;
 import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.UserEntity;
-
+@Slf4j
 // @Component - Spring Bean, который можно внедрять через @Autowired
 @Component
 public class UserMapper {
@@ -35,6 +36,12 @@ public class UserMapper {
         dto.setRole(entity.getRole());
         // imageUrl из Entity становится image в DTO
         dto.setImage(entity.getImageUrl());
+        // Добавляем логирование
+        log.info("Маппинг UserEntity -> User DTO: ");
+        log.info("  Entity ID: {}", entity.getId());
+        log.info("  Entity imageUrl: {}", entity.getImageUrl());
+        log.info("  DTO image: {}", dto.getImage());
+
         return dto;
 
     }

@@ -4,18 +4,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import ru.skypro.homework.dto.Role;
+
 
 import javax.sql.DataSource;
 
@@ -35,6 +32,7 @@ public class WebSecurityConfig {
             "/webjars/**",
             "/login",
             "/register",
+            "/uploads/**",
 //            "/ads", добавили для публичного доступа к объявлениям
 //            "/ads/**" Добавили для публичного доступа к конкретным объявлениям
     };
@@ -68,12 +66,34 @@ public class WebSecurityConfig {
                                         .permitAll() // Разрешаем доступ без аутентификации
                                         .mvcMatchers("/ads/**", "/users/**") // Все остальные URL
                                         .authenticated()) // Требуют аутентификации
-                .cors() // Включаем CORS для кросс-доменных запросов
+                .cors() .configurationSource(corsConfigurationSource())// Включаем CORS для кросс-доменных запросов
                 .and()
                 .httpBasic(withDefaults()); // Используем Basic аутентификацию
         return http.build();
     }
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
 
+        // Разрешаем оба протокола (http и https)
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000",
+                "http://localhost:8080",
+                "https://localhost:8080",
+                "http://localhost",
+                "https://localhost"
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 
 
 

@@ -8,6 +8,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
@@ -16,6 +17,9 @@ import ru.skypro.homework.dto.User;
 import ru.skypro.homework.service.UserService;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
@@ -44,10 +48,12 @@ public class UserController {
     public ResponseEntity<User> getUser() {
         // Получаем данные текущего пользователя через сервис
         User user = userService.getCurrentUser();
+        System.out.println("Возвращаемый пользователь, image: " + user.getImage()); // Лог
         return ResponseEntity.ok(user);  // 200 OK с данными пользователя
     }
 
-    @PatchMapping("/me") // PATCH для частичного обновления
+    @PatchMapping("/me")// PATCH для частичного обновления
+    @PreAuthorize("isAuthenticated()")
     @Operation (summary = "Обновление информации об авторизованном пользователе" )
     public ResponseEntity<UpdateUser> updateUser(@RequestBody UpdateUser updateUser) {
         // Обновляем пользователя и возвращаем обновленные данные
@@ -55,7 +61,8 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @PatchMapping(value = "/me/image", consumes = "multipart/form-data")
+
+    /*@PatchMapping(value = "/me/image", consumes = "multipart/form-data")
     @Operation (summary = "Обновление аватара авторизованного пользователя")
     public ResponseEntity<?> updateUserImage(@RequestParam("image") MultipartFile image) {
         try {
@@ -65,6 +72,28 @@ public class UserController {
             // Ошибка при работе с файлом - 500 Internal Server Error
             return ResponseEntity.status(500).build();
         }
-    }
+    }*/
+    // Второй вариант @PatchMapping(value = "/me/image", consumes = "multipart/form-data")
+    @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Обновление аватара авторизованного пользователя")
+    public ResponseEntity<User> updateUserImage(@RequestParam("image") MultipartFile image) {
+        try {
+            userService.updateUserImage(image);
 
+            // После обновления возвращаем обновленные данные пользователя
+            User updatedUser = userService.getCurrentUser();
+            System.out.println("Контроллер - обновленный image: " + updatedUser.getImage());
+            return ResponseEntity.ok(updatedUser);  // 200 OK с данными
+
+        } catch (IOException e) {
+            log.error("Ошибка при обновлении изображения пользователя", e);
+            // Ошибка при работе с файлом - 500 Internal Server Error
+           ;return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+    }
 }
+
+
+
+

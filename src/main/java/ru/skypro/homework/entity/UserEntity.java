@@ -1,6 +1,7 @@
 package ru.skypro.homework.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.persistence.Id;
 
@@ -73,6 +74,7 @@ public class UserEntity  implements UserDetails {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     // Исключаем из toString, чтобы избежать бесконечной рекурсии
     @ToString.Exclude
+    @JsonIgnore
     private List<AdEntity> ads;
 
     // Аналогично для комментариев

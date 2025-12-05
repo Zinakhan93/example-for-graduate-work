@@ -1,7 +1,4 @@
 package ru.skypro.homework.service.impl;
-
-import liquibase.pro.packaged.S;
-import liquibase.repackaged.org.apache.commons.lang3.StringUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,26 +14,18 @@ import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AdService;
-
-
+import ru.skypro.homework.service.FileService;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static com.datical.liquibase.ext.init.InitProjectUtil.getExtension;
-
-@Service // Помечаем класс как Spring Service компонент
 @RequiredArgsConstructor// Lombok: создает конструктор для всех final полей
 @Slf4j
+@Service // Помечаем класс как Spring Service компонент
 public class AdServiceImpl implements AdService {
-
     private final AdRepository adRepository; // Репозиторий для работы с объявлениями в БД
     private final UserRepository userRepository; // Репозиторий для работы с пользователями
     private final AdMapper adMapper; // Маппер для преобразования между Entity и DTO
+    private final FileService fileService; // Добавляем FileService
 
     @Override
     // метод для получения всех объявлений
@@ -56,7 +45,7 @@ public class AdServiceImpl implements AdService {
         return ads; // Возвращаем DTO со списком объявлений
     }
 
-    @Override
+    /*@Override
     //  Метод для добавления объявления
     public Ad addAd(CreateOrUpdateAd properties, MultipartFile image, String username) throws IOException {
         // Находим пользователя по email (username)
@@ -75,7 +64,7 @@ public class AdServiceImpl implements AdService {
 
         // Преобразуем сохраненное Entity обратно в DTO для ответа
         return adMapper.toDto(savedAd);
-    }
+    }*/
     @Override
     // Метод, чтобы получить объявления по ID
     public ExtendedAd getAd(Integer id) {
@@ -140,7 +129,7 @@ public class AdServiceImpl implements AdService {
     }
 
     // Проверяем, что пользователь является автором объявления или администратором
-    @PreAuthorize("hasRole('ADMIN') or @adServiceImpl.isAdAuthor(authentication.name, #id)")
+    /*@PreAuthorize("hasRole('ADMIN') or @adServiceImpl.isAdAuthor(authentication.name, #id)")
     @Override
     //Обновить изображение объявления
     public byte[] updateAdImage(Integer id, MultipartFile image) throws IOException {
@@ -155,7 +144,7 @@ public class AdServiceImpl implements AdService {
 
         // Возвращаем массив байтов изображения (в реальном приложении нужно читать файл)
         return image.getBytes();
-    }
+    }*/
 
 
     // Вспомогательный метод для проверки авторства объявления
@@ -172,5 +161,38 @@ public class AdServiceImpl implements AdService {
         // Проверяем, что автор объявления совпадает с текущим пользователем
         return ad.getAuthor().getId().equals(user.getId());
     }
+    @Override
+    public Ad addAd(CreateOrUpdateAd properties, MultipartFile image, String username) throws IOException {
+        UserEntity author = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
 
+        AdEntity adEntity = adMapper.toEntity(properties);
+        adEntity.setAuthor(author);
+
+        // Вместо генерации URL сохраняем файл на диск
+        String imagePath = fileService.saveFile(image); // Сохраняем файл
+        adEntity.setImageUrl(imagePath); // Сохраняем путь в БД
+
+        AdEntity savedAd = adRepository.save(adEntity);
+        return adMapper.toDto(savedAd);
+    }
+
+    @Override
+    public byte[] updateAdImage(Integer id, MultipartFile image) throws IOException {
+        AdEntity adEntity = adRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Объявление не найден"));
+
+        // Сохраняем новый файл
+        String newImagePath = fileService.saveFile(image);
+        System.out.println("AD - Путь к файлу: " + newImagePath);
+        System.out.println("AD - Полный URL: http://localhost:8080" + newImagePath);
+        adEntity.setImageUrl(newImagePath);
+        adRepository.save(adEntity);
+
+        // Возвращаем байты файла
+        return image.getBytes();
+    }
 }
+
+
+

@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPassword;
 import ru.skypro.homework.dto.UpdateUser;
@@ -14,6 +15,7 @@ import ru.skypro.homework.dto.User;
 import ru.skypro.homework.entity.UserEntity;
 import ru.skypro.homework.mapper.UserMapper;
 import ru.skypro.homework.repository.UserRepository;
+import ru.skypro.homework.service.FileService;
 import ru.skypro.homework.service.UserService;
 import java.io.IOException;
 
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;  // Репозиторий для работы с пользователями
     private final UserMapper userMapper;          // Маппер для преобразования
     private final PasswordEncoder passwordEncoder; // Кодировщик паролей
+    private final FileService fileService; // Добавляем FileService
 
     @Override
     public User getCurrentUser() {
@@ -33,7 +36,6 @@ public class UserServiceImpl implements UserService {
         return userMapper.toDto(userEntity);
     }
     // Только текущий пользователь может обновлять свои данные
-    @PreAuthorize("#updateUser == null or authentication.name == @userServiceImpl.getCurrentUserEntity().email")
     @Override
     public UpdateUser updateUser(UpdateUser updateUser) {
         // Получаем текущего пользователя
@@ -45,8 +47,32 @@ public class UserServiceImpl implements UserService {
         // Возвращаем DTO (можно вернуть обновленного пользователя)
         return updateUser;
     }
-
     @Override
+    @Transactional
+    public void updateUserImage(MultipartFile image) throws IOException {
+        UserEntity userEntity = getCurrentUserEntity();
+
+        // Проверяем, что файл не пустой
+        if (image == null || image.isEmpty()) {
+            throw new IllegalArgumentException("Изображение не может быть пустым");
+        }
+
+        String imagePath = fileService.saveFile(image);
+        System.out.println("USER SERVICE - Путь к файлу: " + imagePath);
+
+        // Устанавливаем полный URL для доступа к изображению
+        userEntity.setImageUrl(imagePath);
+
+        // Сохраняем в БД
+        userEntity = userRepository.save(userEntity);
+
+        System.out.println("USER SERVICE - ID пользователя: " + userEntity.getId());
+        System.out.println("USER SERVICE - Обновленный imageUrl в БД: " + userEntity.getImageUrl());
+
+        // Принудительно сбрасываем кэш для текущего пользователя
+        userRepository.flush();
+    }
+   /* @Override
     public void updateUserImage(MultipartFile image) throws IOException {
         // TODO: реализовать сохранение файла на диск/в облако
         // Пока просто сохраняем ссылку
@@ -54,7 +80,7 @@ public class UserServiceImpl implements UserService {
         // Генерируем путь к изображению
         userEntity.setImageUrl("/images/users/" + userEntity.getId() + ".jpg");
         userRepository.save(userEntity);
-    }
+    }*/
 
     @Override
     public void setPassword(NewPassword newPassword) {

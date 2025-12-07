@@ -26,7 +26,7 @@ public class AdEntity {
     @Column(nullable = false)
     private Integer price;
 
-    @Column(nullable = false, length = 64)
+    @Column(nullable = false, length = 350)
     private String description;
 
     @Column(name = "image_url")

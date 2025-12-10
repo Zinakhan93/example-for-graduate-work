@@ -1,21 +1,35 @@
 package ru.skypro.homework.dto;
-
 import lombok.*;
-
+/**
+ * DTO для представления расширенной информации об объявлении.
+ * Содержит полные данные об объявлении, включая контактную информацию автора.
+ */
 @Data
 @Getter
 @Setter
-@AllArgsConstructor // создает конструктор
-@NoArgsConstructor // создает пустой конструктор
-//расширенная информация об объявлении:
+@AllArgsConstructor
+@NoArgsConstructor
 public class ExtendedAd {
-    private Integer pk ;              // ID объявления
-    private String authorFirstName; // Имя автора
-    private String authorLastName ;  // Фамилия автора
-    private String description ;     // Описание
-    private String email ;           // Email автора
-    private String image ;           // Ссылка на картинку
-    private String phone ;           // Телефон автора
-    private Integer price ;           // Цена
-    private String title ;           // Заголовок
+    private Integer pk ;
+    private String authorFirstName;
+    private String authorLastName ;
+    private String description ;
+    private String email ;
+    private String image ;
+    private String phone ;
+    private Integer price ;
+    private String title ;
 }
+/**
+ * Конструктор c парамером и без создается автоматически @AllArgsConstructor, @NoArgsConstructor
+ * Геттеры и сеттеры создается автоматически @Getter, @Setter
+ * @param pk ID  объявления
+ * @param authorFirstName имя автора объявления
+ * @param authorLastName фамилия автора объявления
+ * @param description подробное описание объявления
+ * @param email email автора
+ * @param image ссылка на изображение объявления
+ * @param phone телефон автора
+ * @param price цена товара/услуги
+ * @param title заголовок объявления
+ */

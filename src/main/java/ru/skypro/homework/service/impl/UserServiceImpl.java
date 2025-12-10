@@ -51,37 +51,21 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void updateUserImage(MultipartFile image) throws IOException {
         UserEntity userEntity = getCurrentUserEntity();
-
         // Проверяем, что файл не пустой
         if (image == null || image.isEmpty()) {
             throw new IllegalArgumentException("Изображение не может быть пустым");
         }
-
         String imagePath = fileService.saveFile(image);
         System.out.println("USER SERVICE - Путь к файлу: " + imagePath);
-
         // Устанавливаем полный URL для доступа к изображению
         userEntity.setImageUrl(imagePath);
-
         // Сохраняем в БД
         userEntity = userRepository.save(userEntity);
-
         System.out.println("USER SERVICE - ID пользователя: " + userEntity.getId());
         System.out.println("USER SERVICE - Обновленный imageUrl в БД: " + userEntity.getImageUrl());
-
         // Принудительно сбрасываем кэш для текущего пользователя
         userRepository.flush();
     }
-   /* @Override
-    public void updateUserImage(MultipartFile image) throws IOException {
-        // TODO: реализовать сохранение файла на диск/в облако
-        // Пока просто сохраняем ссылку
-        UserEntity userEntity = getCurrentUserEntity();
-        // Генерируем путь к изображению
-        userEntity.setImageUrl("/images/users/" + userEntity.getId() + ".jpg");
-        userRepository.save(userEntity);
-    }*/
-
     @Override
     public void setPassword(NewPassword newPassword) {
         UserEntity userEntity = getCurrentUserEntity();

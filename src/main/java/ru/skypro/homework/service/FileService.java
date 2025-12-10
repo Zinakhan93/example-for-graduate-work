@@ -34,7 +34,7 @@ public class FileService {
         createUploadDir(); // Создаем папку после установки значения
     }
 
-    // Уберите конструктор или оставьте пустой
+
     public FileService() {
         System.out.println("FileService instance created");
     }

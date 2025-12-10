@@ -3,19 +3,25 @@ package ru.skypro.homework.dto;
 import lombok.*;
 
 import static ru.skypro.homework.dto.Role.USER;
-
+/**
+ * DTO (Data Transfer Object) для представления пользователя системы.
+ * Содержит полную информацию о пользователе, включая идентификационные данные,
+ * контактную информацию, роль в системе и ссылку на аватар.
+ * @see Role
+ * @see Register
+ * @see UpdateUser
+ */
 @Data
-
-@AllArgsConstructor // создает конструктор
-@NoArgsConstructor  // создает пустой конструктор
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
-    private Integer id;         // ID пользователя
-    private String email;        // Email (логин)
-    private String firstName;    // Имя
-    private String lastName;     // Фамилия
-    private String phone;        // Телефон
-    private Role role;         // Роль
-    private String image;// Ссылка на аватар
+    private Integer id;
+    private String email;
+    private String firstName;
+    private String lastName;
+    private String phone;
+    private Role role;
+    private String image;
 
     public Integer getId() {
         return id;
@@ -73,3 +79,13 @@ public class User {
         this.image = image;
     }
 }
+/**
+ * Конструктор с параметром и без создаются автоматически с помощью @AllArgsConstructor, @NoArgsConstructor
+ * @param id уникальный идентификатор пользователя
+ * @param email email пользователя (логин)
+ * @param firstName имя пользователя
+ * @param lastName фамилия пользователя
+ * @param phone номер телефона пользователя
+ * @param role роль пользователя в системе
+ * @param image ссылка на аватар пользователя
+ */
